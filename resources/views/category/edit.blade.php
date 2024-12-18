@@ -5,7 +5,7 @@
     <div class="container-fluid">
         <div class="row mb-2">
             <div class="col-sm-6">
-                <h1 class="m-0">Редактировать категорию</h1>
+                <h1 class="m-0">Редактировать тег</h1>
             </div><!-- /.col -->
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
@@ -23,6 +23,17 @@
         <!-- Small boxes (Stat box) -->
         <div class="row">
 
+            <form action="{{ route('tag.update', $tag->id) }}"  method="POST">
+                @csrf
+                @method('patch')
+                <div class="form-group">
+                    <input type="text" class="form-control" name="title" value="{{ $tag->title }}" placeholder="Наименование категории">
+                </div>
+
+                <div class="form-group">
+                    <input type="submit" class="btn btn-primary"  value="Редактировать">
+                </div>
+            </form>
           
         </div>
         <!-- /.row -->

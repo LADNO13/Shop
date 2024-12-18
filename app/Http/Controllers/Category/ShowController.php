@@ -10,7 +10,6 @@ class ShowController extends Controller
 {
     public function __invoke(Category $category)
     {
-        $category = Category::all();
         return view('category.show', compact('category'));
     }
 }
