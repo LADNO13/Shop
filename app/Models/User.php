@@ -15,7 +15,7 @@ class User extends Authenticatable
     const GENDER_FEMALE = 2;
 
     protected $table = 'users';
-    protected $guarded = false;
+    protected $guarded = true;
 
     static function getGenders()
     {
