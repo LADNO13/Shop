@@ -2,8 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\product\IndexController;
-
-
+use App\Http\Controllers\API\product\ShowController;
 
 Route::get('/', \App\Http\Controllers\Main\IndexController::class)->name('main.index');
 
@@ -70,5 +69,5 @@ Route::group(['prefix' => 'products'], function () {
 });
 
 
-
-Route::get('/api/products', IndexController::class);
+Route::get('/products', App\Http\Controllers\API\product\IndexController::class);
+Route::get('/products/{product}', App\Http\Controllers\API\product\ShowController::class);
