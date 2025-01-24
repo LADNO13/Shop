@@ -23,16 +23,21 @@ class UpdateRequest extends FormRequest
     {
         return [
             'title' => 'required|string',
-            'description' => 'required',
-            'content' => 'required',
-            'preview_image' => 'required',
-            'price' => 'required',
-            'old_price' => 'required',
-            'count' => 'required',
-            'is_published' => 'nullable',
-            'category_id' => 'nullable',
+            'description' => 'required|string',
+            'content' => 'required|string',
+            'preview_image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+            'price' => 'required|integer',
+            'old_price' => 'required|integer',
+            'count' => 'required|integer',
+            'is_published' => 'nullable|boolean',
+            'category_id' => 'nullable|exists:categories,id',
+            'group_id' => 'nullable|exists:groups,id',
             'tags' => 'nullable|array',
+            'tags.*' => 'exists:tags,id',
             'colors' => 'nullable|array',
+            'colors.*' => 'exists:colors,id',
+            'product_images' => 'nullable|array',
+            'product_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif',
         ];
     }
 }

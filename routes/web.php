@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\product\IndexController;
 use App\Http\Controllers\API\product\ShowController;
+use App\Http\Controllers\API\product\FilterListController;
 
 Route::get('/', \App\Http\Controllers\Main\IndexController::class)->name('main.index');
 
@@ -36,8 +37,6 @@ Route::group(['prefix' => 'tags'], function () {
     Route::delete('/{tag}', \App\Http\Controllers\Tag\DeleteController::class)->name('tag.delete');
 });
 
-
-
 Route::group(['prefix' => 'colors'], function () {
     Route::get('/', \App\Http\Controllers\Color\IndexController::class)->name('color.index');
     Route::get('/create', \App\Http\Controllers\Color\CreateController::class)->name('color.create');
@@ -69,5 +68,10 @@ Route::group(['prefix' => 'products'], function () {
 });
 
 
-Route::get('/products', App\Http\Controllers\API\product\IndexController::class);
-Route::get('/products/{product}', App\Http\Controllers\API\product\ShowController::class);
+
+Route::post('/api/products', [IndexController::class, '__invoke']);
+Route::get('/api/products/filters', [FilterListController::class, '__invoke']);
+Route::get('/api/products/{product}', [ShowController::class, '__invoke']);
+
+
+

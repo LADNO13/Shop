@@ -4,12 +4,9 @@ namespace App\Http\Controllers\Product;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Product\UpdateRequest;
-use App\Models\ColorProduct;
 use App\Models\Product;
-use App\Models\ProductTag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-
 
 class UpdateController extends Controller
 {
@@ -26,44 +23,47 @@ class UpdateController extends Controller
             }
             // Сохраняем новое изображение
             $imagePath = $request->file('preview_image')->store('images', 'public');
-            $data['preview_image'] = $imagePath; // Сохраняем путь к новому изображению
+            $data['preview_image'] = $imagePath;
         }
 
-        // Удаляем теги и цвета из массива данных, чтобы они не попали в обновление продукта
-        $tagsIds = $data['tags'] ?? [];
-        $colorsIds = $data['colors'] ?? [];
-        unset($data['tags'], $data['colors']);
+        // Удаляем лишние поля из массива данных
+        unset($data['product_images'], $data['tags'], $data['colors']);
 
         // Обновляем данные продукта
         $product->update($data);
 
-        // Обновляем теги продукта
-        if (!empty($tagsIds)) {
-            // Удаляем старые связи с тегами
-            ProductTag::where('product_id', $product->id)->delete();
-            // Создаем новые связи с тегами
-            foreach ($tagsIds as $tagId) {
-                ProductTag::firstOrCreate([
-                    'product_id' => $product->id,
-                    'tag_id' => $tagId,
-                ]);
+        // Обрабатываем дополнительные изображения
+        if ($request->hasFile('product_images')) {
+            // Удаляем старые изображения
+            foreach ($product->productImages as $image) {
+                if (Storage::disk('public')->exists($image->file_path)) {
+                    Storage::disk('public')->delete($image->file_path);
+                }
+            }
+            // Удаляем записи о старых изображениях из базы данных
+            $product->productImages()->delete();
+
+            // Загружаем новые изображения
+            foreach ($request->file('product_images') as $image) {
+                if ($image) {
+                    $imagePath = $image->store('images', 'public');
+                    $product->productImages()->create([
+                        'file_path' => $imagePath
+                    ]);
+                }
             }
         }
 
-        // Обновляем цвета продукта
-        if (!empty($colorsIds)) {
-            // Удаляем старые связи с цветами
-            ColorProduct::where('product_id', $product->id)->delete();
-            // Создаем новые связи с цветами
-            foreach ($colorsIds as $colorId) {
-                ColorProduct::firstOrCreate([
-                    'product_id' => $product->id,
-                    'color_id' => $colorId,
-                ]);
-            }
+        // Синхронизируем теги
+        if ($request->has('tags')) {
+            $product->tags()->sync($request->tags);
         }
 
-        // Перенаправляем на страницу продукта
-        return redirect()->route('product.show', $product)->with('success', 'Продукт успешно обновлен');
+        // Синхронизируем цвета
+        if ($request->has('colors')) {
+            $product->colors()->sync($request->colors);
+        }
+
+        return redirect()->route('product.index');
     }
 }
